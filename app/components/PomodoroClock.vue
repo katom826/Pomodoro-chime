@@ -35,12 +35,12 @@
       class="clockCircle"
     />
 
-    <g :transform="`translate(${hourHand.x} ${hourHand.y}) rotate(${hourAngle})`">
-      <polygon :points="hourHandPoints" class="clockShortHand" />
-    </g>
-
     <g :transform="`translate(${minuteHand.x} ${minuteHand.y}) rotate(${minuteAngle})`">
       <polygon :points="minuteHandPoints" class="clockLongHand" />
+    </g>
+
+    <g :transform="`translate(${hourHand.x} ${hourHand.y}) rotate(${hourAngle})`">
+      <polygon :points="hourHandPoints" class="clockShortHand" />
     </g>
 
     <circle cx="50" cy="50" r="1.9" class="clockPin" />
@@ -174,6 +174,7 @@ const remainLabel = computed(() => (props.now ? formatMmSs(props.remainingSecond
   opacity: 0;
   animation: fade-in-text calc(var(--clock-grow-duration, 1.4s) * 0.72) ease-out forwards;
   animation-delay: calc(var(--clock-grow-duration, 1.4s) * 0.3);
+  filter: drop-shadow(0 0 1px rgb(255 255 255 / 100%));
 }
 
 .clockCircle {
@@ -206,14 +207,6 @@ const remainLabel = computed(() => (props.now ? formatMmSs(props.remainingSecond
   }
 }
 
-.clockShortHand {
-  fill: url(#clockHandGradient);
-  transform-origin: 50% 100%;
-  transform-box: fill-box;
-  transform: scaleY(0);
-  animation: hand-grow 920ms cubic-bezier(0.18, 0.82, 0.24, 1) forwards;
-}
-
 .clockLongHand {
   fill: url(#clockHandGradient);
   transform-origin: 50% 100%;
@@ -221,6 +214,15 @@ const remainLabel = computed(() => (props.now ? formatMmSs(props.remainingSecond
   transform: scaleY(0);
   animation: hand-grow 920ms cubic-bezier(0.18, 0.82, 0.24, 1) forwards;
   animation-delay: 40ms;
+  filter: drop-shadow(0 0 1px rgb(255 255 255 / 100%));
+}
+
+.clockShortHand {
+  fill: url(#clockHandGradient);
+  transform-origin: 50% 100%;
+  transform-box: fill-box;
+  transform: scaleY(0);
+  animation: hand-grow 920ms cubic-bezier(0.18, 0.82, 0.24, 1) forwards;
 }
 
 .clockPin {
