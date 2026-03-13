@@ -1,5 +1,10 @@
 <template>
   <div v-if="now" :class="['container', isWorkTime ? 'work' : 'rest']">
+    <div
+      :key="blinkKey"
+      aria-hidden="true"
+      :class="['bgBlink', { bgBlinkActive: blinkActive }]"
+    />
     <main class="main">
       <button class="menuBtn" :aria-label="OPEN_SETTINGS_LABEL" @click="toggleMenu">
         <svg
@@ -18,7 +23,7 @@
 
     <FooterAd />
 
-    <div aria-hidden="true" :class="['dialogOverlay', isDialogShown ? 'dialogOverlayVisible' : '']" />
+    <div aria-hidden="true" :class="['dialogOverlay', { dialogOverlayVisible: isDialogShown }]" />
 
     <dialog
       ref="menuDialogRef"
@@ -177,6 +182,9 @@ const remainingSeconds = computed(() => {
 
 const remainLabel = computed(() => (now.value ? formatMmSs(remainingSeconds.value) : '--:--'))
 const tabStatusLabel = computed(() => (isWorkTime.value ? STATUS_WORK_LABEL : STATUS_REST_LABEL))
+const blinkActive = ref(false)
+const blinkKey = ref(0)
+let blinkTimeoutId: ReturnType<typeof setTimeout> | null = null
 
 useHead(() => ({
   title: now.value ? `${tabStatusLabel.value}\uff1a${remainLabel.value}` : 'Pomodoro Chime'
@@ -313,6 +321,25 @@ watch([isWorkTime, now, soundEnabled], async ([currentIsWorkTime, currentNow, cu
   prevIsWorkTimeRef.value = currentIsWorkTime
 })
 
+watch(remainingSeconds, (value, previous) => {
+  if (!import.meta.client) return
+  if (previous !== undefined && previous <= 3) return
+  if (value > 0 && value <= 3) {
+    blinkActive.value = false
+    blinkKey.value += 1
+    requestAnimationFrame(() => {
+      blinkActive.value = true
+    })
+    if (blinkTimeoutId) {
+      clearTimeout(blinkTimeoutId)
+    }
+    blinkTimeoutId = window.setTimeout(() => {
+      blinkActive.value = false
+      blinkTimeoutId = null
+    }, 3300)
+  }
+})
+
 onMounted(() => {
   const savedWorkTime = parseStoredWorkTime(window.localStorage.getItem(WORK_TIME_STORAGE_KEY))
   if (savedWorkTime !== null) {
@@ -338,6 +365,9 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (intervalId) {
     clearInterval(intervalId)
+  }
+  if (blinkTimeoutId) {
+    clearTimeout(blinkTimeoutId)
   }
   window.removeEventListener('pointerdown', unlockAudio)
   window.removeEventListener('keydown', unlockAudio)
@@ -409,8 +439,21 @@ onBeforeUnmount(() => {
 
   > * {
     position: relative;
-    z-index: 1;
+    z-index: 2;
   }
+}
+
+.container > .bgBlink {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: rgb(255 255 255 / 85%);
+  opacity: 0;
+}
+
+.bgBlinkActive {
+  animation: bg-blink 3.3s ease-in-out forwards;
 }
 
 .work::before {
@@ -519,6 +562,40 @@ onBeforeUnmount(() => {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bg-blink {
+  0% {
+    opacity: 0;
+  }
+
+  14% {
+    opacity: 0.65;
+  }
+
+  30% {
+    opacity: 0;
+  }
+
+  45% {
+    opacity: 0.65;
+  }
+
+  60% {
+    opacity: 0;
+  }
+
+  75% {
+    opacity: 0.65;
+  }
+
+  91% {
+    opacity: 0.65;
+  }
+
+  100% {
+    opacity: 0;
   }
 }
 
