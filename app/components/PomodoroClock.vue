@@ -1,6 +1,15 @@
 <template>
   <svg width="min(84vw, 620px)" height="min(84vw, 620px)" viewBox="0 0 100 100" class="clock">
     <defs>
+      <filter id="clockShadow" x="-25%" y="-25%" width="150%" height="160%" filterUnits="userSpaceOnUse">
+        <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#08162b" flood-opacity="0.28" />
+      </filter>
+      <filter id="handShadow" x="-60%" y="-60%" width="220%" height="220%" filterUnits="objectBoundingBox">
+        <feDropShadow dx="0" dy="0" stdDeviation="0.6" flood-color="#ffffff" flood-opacity="0.9" />
+      </filter>
+      <filter id="textShadow" x="-60%" y="-60%" width="220%" height="220%" filterUnits="objectBoundingBox">
+        <feDropShadow dx="0" dy="0" stdDeviation="0.6" flood-color="#ffffff" flood-opacity="1" />
+      </filter>
       <linearGradient id="workSectorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stop-color="#f89f94" />
         <stop offset="100%" stop-color="#ec7078" />
@@ -23,45 +32,54 @@
       </linearGradient>
     </defs>
 
-    <path v-for="(sector, i) in clockSectors" :key="i" :d="sector.path" :fill="sector.fill" class="clockSector" />
+    <g filter="url(#clockShadow)">
+      <path v-for="(sector, i) in clockSectors" :key="i" :d="sector.path" :fill="sector.fill" class="clockSector" />
 
-    <circle
-      cx="50"
-      cy="50"
-      r="48"
-      fill="#ffffff08"
-      stroke="url(#clockRingGradient)"
-      stroke-width="1.3"
-      class="clockCircle"
-    />
+      <circle
+        cx="50"
+        cy="50"
+        r="48"
+        fill="#ffffff08"
+        stroke="url(#clockRingGradient)"
+        stroke-width="1.3"
+        class="clockCircle"
+      />
 
-    <g :transform="`translate(${minuteHand.x} ${minuteHand.y}) rotate(${minuteAngle})`">
-      <polygon :points="minuteHandPoints" class="clockLongHand" />
+      <g :transform="`translate(${minuteHand.x} ${minuteHand.y}) rotate(${minuteAngle})`">
+        <polygon :points="minuteHandPoints" class="clockLongHand" filter="url(#handShadow)" />
+      </g>
+
+      <g :transform="`translate(${hourHand.x} ${hourHand.y}) rotate(${hourAngle})`">
+        <polygon :points="hourHandPoints" class="clockShortHand" />
+      </g>
+
+      <circle cx="50" cy="50" r="1.9" class="clockPin" />
+
+      <line
+        v-for="i in 60"
+        :key="i"
+        x1="50"
+        y1="5"
+        x2="50"
+        :y2="(i - 1) % 5 === 0 ? 11.5 : 7"
+        stroke="url(#clockIndexGradient)"
+        :stroke-width="(i - 1) % 5 === 0 ? 1 : 0.75"
+        :transform="`rotate(${(i - 1) * 6} 50 50)`"
+        pathLength="1"
+        class="clockIndex"
+      />
+
+      <text
+        x="50"
+        y="69.8"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        class="clockTextMain"
+        filter="url(#textShadow)"
+      >
+        {{ remainLabel }}
+      </text>
     </g>
-
-    <g :transform="`translate(${hourHand.x} ${hourHand.y}) rotate(${hourAngle})`">
-      <polygon :points="hourHandPoints" class="clockShortHand" />
-    </g>
-
-    <circle cx="50" cy="50" r="1.9" class="clockPin" />
-
-    <line
-      v-for="i in 60"
-      :key="i"
-      x1="50"
-      y1="5"
-      x2="50"
-      :y2="(i - 1) % 5 === 0 ? 11.5 : 7"
-      stroke="url(#clockIndexGradient)"
-      :stroke-width="(i - 1) % 5 === 0 ? 1 : 0.75"
-      :transform="`rotate(${(i - 1) * 6} 50 50)`"
-      pathLength="1"
-      class="clockIndex"
-    />
-
-    <text x="50" y="69.8" text-anchor="middle" dominant-baseline="middle" class="clockTextMain">
-      {{ remainLabel }}
-    </text>
   </svg>
 </template>
 
@@ -156,8 +174,6 @@ const remainLabel = computed(() => (props.now ? formatMmSs(props.remainingSecond
 .clock {
   width: min(84vw, 620px);
   height: min(84vw, 620px);
-  filter: drop-shadow(0 18px 35px rgb(8 22 43 / 28%));
-  -webkit-filter: drop-shadow(0 18px 35px rgb(8 22 43 / 28%));
   overflow: visible;
 }
 
@@ -176,8 +192,6 @@ const remainLabel = computed(() => (props.now ? formatMmSs(props.remainingSecond
   opacity: 0;
   animation: fade-in-text calc(var(--clock-grow-duration, 1.4s) * 0.72) ease-out forwards;
   animation-delay: calc(var(--clock-grow-duration, 1.4s) * 0.3);
-  filter: drop-shadow(0 0 1px rgb(255 255 255 / 100%));
-  -webkit-filter: drop-shadow(0 0 1px rgb(255 255 255 / 100%));
 }
 
 .clockCircle {
@@ -217,8 +231,6 @@ const remainLabel = computed(() => (props.now ? formatMmSs(props.remainingSecond
   transform: scaleY(0);
   animation: hand-grow 920ms cubic-bezier(0.18, 0.82, 0.24, 1) forwards;
   animation-delay: 40ms;
-  filter: drop-shadow(0 0 1px rgb(255 255 255 / 100%));
-  -webkit-filter: drop-shadow(0 0 1px rgb(255 255 255 / 100%));
 }
 
 .clockShortHand {
