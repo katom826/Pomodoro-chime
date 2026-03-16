@@ -53,7 +53,7 @@
         <polygon :points="hourHandPoints" class="clockShortHand" />
       </g>
 
-      <circle cx="50" cy="50" r="1.9" class="clockPin" />
+      <circle cx="50" cy="50" r="1.5" class="clockPin" />
 
       <line
         v-for="i in 60"
@@ -224,6 +224,12 @@ const remainLabel = computed(() => (props.now ? formatMmSs(props.remainingSecond
   }
 }
 
+.clockIndex {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw-line 0.8s ease-out forwards 0.9s;
+}
+
 .clockLongHand {
   fill: url(#clockHandGradient);
   transform-origin: 50% 100%;
@@ -243,12 +249,10 @@ const remainLabel = computed(() => (props.now ? formatMmSs(props.remainingSecond
 
 .clockPin {
   fill: #1a334d;
-}
-
-.clockIndex {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: draw-line 0.8s ease-out forwards 0.9s;
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+  transform: scale(0);
+  animation: pin-grow 520ms ease forwards;
 }
 
 @keyframes draw-line {
@@ -260,6 +264,54 @@ const remainLabel = computed(() => (props.now ? formatMmSs(props.remainingSecond
 @keyframes hand-grow {
   to {
     transform: scaleY(1);
+  }
+}
+
+@keyframes pin-grow {
+  to {
+    transform: scale(1);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .clock {
+    opacity: 0;
+    animation: clock-fade 820ms ease-out forwards;
+  }
+
+  .clockSector,
+  .clockCircle {
+    animation: none;
+    transform: scale(1);
+  }
+
+  .clockLongHand,
+  .clockShortHand {
+    animation: none;
+    transform: scaleY(1);
+  }
+
+  .clockPin {
+    opacity: 1;
+    animation: none;
+    transform: scale(1);
+  }
+
+  .clockIndex {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .clockTextMain {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes clock-fade {
+  to {
+    opacity: 1;
   }
 }
 </style>
