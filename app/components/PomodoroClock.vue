@@ -157,6 +157,8 @@ const remainLabel = computed(() => (props.now ? formatMmSs(props.remainingSecond
   width: min(84vw, 620px);
   height: min(84vw, 620px);
   filter: drop-shadow(0 18px 35px rgb(8 22 43 / 28%));
+  -webkit-filter: drop-shadow(0 18px 35px rgb(8 22 43 / 28%));
+  overflow: visible;
 }
 
 .clockSector {
@@ -175,6 +177,7 @@ const remainLabel = computed(() => (props.now ? formatMmSs(props.remainingSecond
   animation: fade-in-text calc(var(--clock-grow-duration, 1.4s) * 0.72) ease-out forwards;
   animation-delay: calc(var(--clock-grow-duration, 1.4s) * 0.3);
   filter: drop-shadow(0 0 1px rgb(255 255 255 / 100%));
+  -webkit-filter: drop-shadow(0 0 1px rgb(255 255 255 / 100%));
 }
 
 .clockCircle {
@@ -215,6 +218,7 @@ const remainLabel = computed(() => (props.now ? formatMmSs(props.remainingSecond
   animation: hand-grow 920ms cubic-bezier(0.18, 0.82, 0.24, 1) forwards;
   animation-delay: 40ms;
   filter: drop-shadow(0 0 1px rgb(255 255 255 / 100%));
+  -webkit-filter: drop-shadow(0 0 1px rgb(255 255 255 / 100%));
 }
 
 .clockShortHand {
